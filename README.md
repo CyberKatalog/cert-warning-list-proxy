@@ -140,4 +140,4 @@ This project is released under the MIT License. See the [LICENSE](./LICENSE) fil
 
 ## Author
 
-This project was created for [CyberKatalog](https://cyberkatalog.pl) by [Silesian Solutions](https://silesiansolutions.com).
+This project was created for [Cyber Katalog](https://cyberkatalog.pl) by [Silesian Solutions](https://silesiansolutions.com).
