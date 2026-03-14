@@ -1,13 +1,15 @@
 {
   "name": "cert-warning-list-proxy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Cloudflare Worker proxy for hole.cert.pl/domains/",
   "keywords": [
     "cloudflare",
     "worker",
     "proxy",
     "hole.cert.pl",
-    "domains",
+    "cert-polska",
+    "warning-list",
+    "phishing",
     "cybersecurity",
     "cors"
   ],
@@ -18,7 +20,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/silesiansolutions/cert-warning-list-proxy"
+    "url": "https://github.com/CyberKatalog/cert-warning-list-proxy"
   },
   "main": "src/worker.js",
   "scripts": {
@@ -29,10 +31,10 @@
   },
   "packageManager": "pnpm@10.0.0",
   "engines": {
-    "node": ">=22.0.0",
+    "node": ">=24.0.0",
     "pnpm": ">=10.0.0"
   },
   "devDependencies": {
-    "wrangler": "^4.16.1"
+    "wrangler": "^4.73.0"
   }
 }

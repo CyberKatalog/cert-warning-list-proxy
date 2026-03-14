@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "cert-warning-list-proxy",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8787",
+      "description": "Override by selecting an environment (Local or Production)"
+    }
+  ],
+  "item": [
+    {
+      "name": "Legacy",
+      "item": [
+        {
+          "name": "domains/domains.json",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/domains.json",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "domains.json"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "v2 - Domain Lists",
+      "item": [
+        {
+          "name": "domains/v2/domains.json",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains.json",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains.json"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains.csv",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains.csv",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains.csv"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains.txt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains.txt",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains.txt"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains.xml",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/xml" }],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains.xml",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains.xml"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains_adblock.txt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains_adblock.txt",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains_adblock.txt"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains_ublock.txt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains_ublock.txt",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains_ublock.txt"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains_hosts.txt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains_hosts.txt",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains_hosts.txt"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains_mikrotik.rsc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains_mikrotik.rsc",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains_mikrotik.rsc"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/domains_rpz.db",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/domains_rpz.db",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "domains_rpz.db"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "v2 - Action Logs",
+      "item": [
+        {
+          "name": "domains/v2/actions_2026.log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/actions_2026.log",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "actions_2026.log"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/actions_2025.log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/actions_2025.log",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "actions_2025.log"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/actions_2024.log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/actions_2024.log",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "actions_2024.log"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/actions_2023.log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/actions_2023.log",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "actions_2023.log"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/actions_2022.log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/actions_2022.log",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "actions_2022.log"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/actions_2021.log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/actions_2021.log",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "actions_2021.log"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "domains/v2/actions_2020.log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/domains/v2/actions_2020.log",
+              "host": ["{{base_url}}"],
+              "path": ["domains", "v2", "actions_2020.log"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,14 +1,15 @@
 /**
- * Cloudflare Worker - Secure Proxy for hole.cert.pl/domains/
+ * Cloudflare Worker - Proxy for hole.cert.pl/domains/
  *
- * This worker acts as a secure proxy for hole.cert.pl/domains/ endpoints,
- * providing reliable access through Cloudflare infrastructure with CORS support.
+ * Provides reliable access to the CERT Polska phishing domain warning list
+ * through Cloudflare's distributed infrastructure with full CORS support.
  *
- * GitHub IP ranges are often blocked by hole.cert.pl, but Cloudflare's
- * distributed infrastructure is harder to block, making this proxy more reliable.
+ * Background: hole.cert.pl frequently blocks GitHub IP ranges, breaking CI/CD
+ * pipelines and GitHub-hosted applications. Cloudflare's edge network is
+ * significantly harder to block en masse, making this proxy more resilient.
  */
 
-const ALLOWED_PATHS = ["/domains/", "/domains/v2/"];
+const ALLOWED_PREFIXES = ["/domains", "/domains/v2"];
 const TARGET_DOMAIN = "hole.cert.pl";
 
 export default {
@@ -18,7 +19,9 @@ export default {
 };
 
 function isPathAllowed(pathname) {
-  return ALLOWED_PATHS.some((allowedPath) => pathname.startsWith(allowedPath));
+  return ALLOWED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
 }
 
 async function handleRequest(request) {
@@ -27,11 +30,11 @@ async function handleRequest(request) {
 
     if (!isPathAllowed(url.pathname)) {
       return new Response(
-        "Not Found - This proxy only handles /domains/ and /domains/v2/ paths",
+        "Not Found - this proxy only handles /domains and /domains/v2 (and their subpaths)",
         {
           status: 404,
           headers: getCorsHeaders("text/plain; charset=utf-8"),
-        }
+        },
       );
     }
 
@@ -57,7 +60,7 @@ async function handleRequest(request) {
 
     const targetUrl = `https://${TARGET_DOMAIN}${url.pathname}${url.search}`;
 
-    const modifiedRequest = new Request(targetUrl, {
+    const upstreamRequest = new Request(targetUrl, {
       method: request.method,
       headers: {
         "User-Agent": "Cloudflare-Worker-Proxy/1.0",
@@ -69,21 +72,21 @@ async function handleRequest(request) {
       },
     });
 
-    const response = await fetch(modifiedRequest);
+    const upstreamResponse = await fetch(upstreamRequest);
 
-    if (!response.ok) {
+    if (!upstreamResponse.ok) {
       return new Response(
-        `Source server error: ${response.status} ${response.statusText}`,
+        `Upstream error: ${upstreamResponse.status} ${upstreamResponse.statusText}`,
         {
-          status: response.status,
+          status: upstreamResponse.status,
           headers: getCorsHeaders("text/plain; charset=utf-8"),
-        }
+        },
       );
     }
 
     const responseHeaders = new Headers();
 
-    const headersToKeep = [
+    const headersToForward = [
       "content-type",
       "content-length",
       "content-encoding",
@@ -94,8 +97,8 @@ async function handleRequest(request) {
       "cache-control",
     ];
 
-    headersToKeep.forEach((header) => {
-      const value = response.headers.get(header);
+    headersToForward.forEach((header) => {
+      const value = upstreamResponse.headers.get(header);
       if (value) {
         responseHeaders.set(header, value);
       }
@@ -112,9 +115,9 @@ async function handleRequest(request) {
     responseHeaders.set("X-Proxied-By", "Cloudflare-Worker");
     responseHeaders.set("X-Proxy-Source", TARGET_DOMAIN);
 
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
+    return new Response(upstreamResponse.body, {
+      status: upstreamResponse.status,
+      statusText: upstreamResponse.statusText,
       headers: responseHeaders,
     });
   } catch (error) {
