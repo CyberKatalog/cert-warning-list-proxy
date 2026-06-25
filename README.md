@@ -1,5 +1,8 @@
 # CERT.PL Warning List Proxy - Cloudflare Worker
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+
 A Cloudflare Worker that proxies the `hole.cert.pl/domains/` and `hole.cert.pl/domains/v2/` endpoints, providing reliable access to CERT Polska's phishing domain warning list through Cloudflare's distributed infrastructure.
 
 ## Why this proxy exists
