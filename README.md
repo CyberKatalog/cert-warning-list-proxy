@@ -48,13 +48,35 @@ pnpm dev
 pnpm logs
 ```
 
-### Custom domain (optional)
+### Configuration
 
-Edit `wrangler.toml` to bind the worker to your own domain:
+Deployment-specific settings live in `wrangler.toml` under `[vars]`, so the worker source stays generic and reusable:
 
 ```toml
-# Uncomment and replace with your domain
-route = "proxy.your-domain.com/domains/*"
+[vars]
+ALLOWED_ORIGINS = "https://cyberkatalog.pl,http://localhost:5173,http://localhost:4173"
+TARGET_DOMAIN = "hole.cert.pl"
+ALLOWED_PREFIXES = "/domains,/domains/v2"
+```
+
+| Variable           | Required | Default                 | Description                                                              |
+| ------------------ | -------- | ----------------------- | ------------------------------------------------------------------------ |
+| `ALLOWED_ORIGINS`  | yes      | (empty - denies all)    | Comma-separated list of origins allowed to call the proxy                |
+| `TARGET_DOMAIN`    | no       | `hole.cert.pl`          | Upstream host that requests are forwarded to                             |
+| `ALLOWED_PREFIXES` | no       | `/domains,/domains/v2`  | Comma-separated path prefixes the proxy will serve                       |
+
+These are plain configuration values, not secrets - they are stored in `wrangler.toml` and deployed automatically with `pnpm deploy`. To run a private fork for your own domain, change `ALLOWED_ORIGINS` (and optionally the `routes` custom domain) and redeploy; no source changes are needed.
+
+> Note: origin filtering relies on the `Origin` / `Referer` headers, which browsers send automatically but non-browser clients can forge. It prevents cross-site browser usage and casual hotlinking - it is not an authentication mechanism. For real access control, use a secret token, Cloudflare Access, or mTLS.
+
+### Custom domain (optional)
+
+The worker binds to a custom domain via the `routes` block in `wrangler.toml`:
+
+```toml
+routes = [
+  { pattern = "cert.your-domain.com", custom_domain = true },
+]
 ```
 
 ## Usage
@@ -139,7 +161,7 @@ curl https://<worker-name>.<cf-username>.workers.dev/domains/domains.json
 
 ## Security features
 
-- **Origin restriction** - only requests from `cyberkatalog.pl` (and local development origins) are served; everything else gets `403 Forbidden`
+- **Origin restriction** - only requests from origins listed in `ALLOWED_ORIGINS` are served; everything else gets `403 Forbidden`
 - **Scoped CORS** - `Access-Control-Allow-Origin` is echoed only for the allowed origins, with `Vary: Origin`
 - **Path filtering** - only `/domains/` and `/domains/v2/*` paths are handled
 - **Restricted upstream** - only ever forwards requests to `hole.cert.pl`
@@ -179,7 +201,7 @@ curl -H "Origin: https://cyberkatalog.pl" https://cert.cyberkatalog.pl/invalid-p
 | --------------------------- | --------------------------------------------------------------- |
 | `404 Not Found`             | Path does not start with `/domains/` or `/domains/v2/`          |
 | `500 Internal Server Error` | Inspect with `pnpm logs`                                        |
-| `403 Forbidden`             | Request origin is not `cyberkatalog.pl`; the proxy is not public |
+| `403 Forbidden`             | Request origin is not in `ALLOWED_ORIGINS`; the proxy is not public |
 | CORS error in browser       | Ensure you are using the proxy URL, not `hole.cert.pl` directly |
 | Rate limited                | Review limits in the Cloudflare Dashboard                       |
 
