@@ -79,6 +79,18 @@ routes = [
 ]
 ```
 
+### Forking / self-hosting
+
+`wrangler.toml` is committed with this project's own production values, so the repository doubles as the live deployment config. If you fork or clone it, change the following before your first `pnpm deploy` - otherwise Wrangler will try to deploy under this project's name and bind a domain you do not own:
+
+| In `wrangler.toml` | Change to |
+| --- | --- |
+| `name` | your own Worker name |
+| `routes` | your own custom domain, or remove the block and set `workers_dev = true` to use the `*.workers.dev` subdomain |
+| `[vars].ALLOWED_ORIGINS` | the origins of your own site |
+
+`TARGET_DOMAIN` and `ALLOWED_PREFIXES` can stay as-is unless you want to proxy a different upstream.
+
 ## Usage
 
 ### URL mapping
