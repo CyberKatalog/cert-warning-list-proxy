@@ -7,3 +7,8 @@ preview_urls = false
 routes = [
   { pattern = "cert.cyberkatalog.pl", custom_domain = true },
 ]
+
+[vars]
+ALLOWED_ORIGINS = "https://cyberkatalog.pl,http://localhost:5173,http://localhost:4173"
+TARGET_DOMAIN = "hole.cert.pl"
+ALLOWED_PREFIXES = "/domains,/domains/v2"
