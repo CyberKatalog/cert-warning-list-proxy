@@ -1,16 +1,10 @@
-/**
- * Cloudflare Worker - Proxy for hole.cert.pl/domains/
- *
- * Provides reliable access to the CERT Polska phishing domain warning list
- * through Cloudflare's distributed infrastructure with full CORS support.
- *
- * Background: hole.cert.pl frequently blocks GitHub IP ranges, breaking CI/CD
- * pipelines and GitHub-hosted applications. Cloudflare's edge network is
- * significantly harder to block en masse, making this proxy more resilient.
- */
-
 const ALLOWED_PREFIXES = ["/domains", "/domains/v2"];
 const TARGET_DOMAIN = "hole.cert.pl";
+const ALLOWED_ORIGINS = [
+  "https://cyberkatalog.pl",
+  "http://localhost:5173",
+  "http://localhost:4173",
+];
 
 export default {
   async fetch(request) {
@@ -24,35 +18,87 @@ function isPathAllowed(pathname) {
   );
 }
 
+function isAllowedOrigin(request) {
+  const origin = request.headers.get("Origin");
+  return origin !== null && ALLOWED_ORIGINS.includes(origin);
+}
+
+function isAllowedRequest(request) {
+  if (isAllowedOrigin(request)) {
+    return true;
+  }
+
+  const referer = request.headers.get("Referer");
+  return (
+    referer !== null &&
+    ALLOWED_ORIGINS.some((allowed) => referer.startsWith(allowed))
+  );
+}
+
+function resolveAllowedOrigin(request) {
+  const origin = request.headers.get("Origin");
+  return origin !== null && ALLOWED_ORIGINS.includes(origin)
+    ? origin
+    : ALLOWED_ORIGINS[0];
+}
+
+function getCorsHeaders(request, contentType = null) {
+  const headers = {
+    "Access-Control-Allow-Origin": resolveAllowedOrigin(request),
+    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+
+  if (contentType) {
+    headers["Content-Type"] = contentType;
+  }
+
+  return headers;
+}
+
+function forbidden() {
+  return new Response("Forbidden: Access only allowed from cyberkatalog.pl", {
+    status: 403,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+
 async function handleRequest(request) {
   try {
     const url = new URL(request.url);
+
+    if (request.method === "OPTIONS") {
+      return isAllowedOrigin(request)
+        ? new Response(null, {
+            status: 200,
+            headers: {
+              ...getCorsHeaders(request),
+              "Access-Control-Max-Age": "86400",
+            },
+          })
+        : forbidden();
+    }
+
+    if (!isAllowedRequest(request)) {
+      return forbidden();
+    }
 
     if (!isPathAllowed(url.pathname)) {
       return new Response(
         "Not Found - this proxy only handles /domains and /domains/v2 (and their subpaths)",
         {
           status: 404,
-          headers: getCorsHeaders("text/plain; charset=utf-8"),
+          headers: getCorsHeaders(request, "text/plain; charset=utf-8"),
         },
       );
-    }
-
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          ...getCorsHeaders(),
-          "Access-Control-Max-Age": "86400",
-        },
-      });
     }
 
     if (!["GET", "HEAD"].includes(request.method)) {
       return new Response("Method Not Allowed", {
         status: 405,
         headers: {
-          ...getCorsHeaders(),
+          ...getCorsHeaders(request),
           Allow: "GET, HEAD, OPTIONS",
         },
       });
@@ -79,7 +125,7 @@ async function handleRequest(request) {
         `Upstream error: ${upstreamResponse.status} ${upstreamResponse.statusText}`,
         {
           status: upstreamResponse.status,
-          headers: getCorsHeaders("text/plain; charset=utf-8"),
+          headers: getCorsHeaders(request, "text/plain; charset=utf-8"),
         },
       );
     }
@@ -104,7 +150,7 @@ async function handleRequest(request) {
       }
     });
 
-    Object.entries(getCorsHeaders()).forEach(([key, value]) => {
+    Object.entries(getCorsHeaders(request)).forEach(([key, value]) => {
       responseHeaders.set(key, value);
     });
 
@@ -124,21 +170,7 @@ async function handleRequest(request) {
     console.error("Worker error:", error);
     return new Response(`Proxy error: ${error.message}`, {
       status: 500,
-      headers: getCorsHeaders("text/plain; charset=utf-8"),
+      headers: getCorsHeaders(request, "text/plain; charset=utf-8"),
     });
   }
-}
-
-function getCorsHeaders(contentType = null) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
-
-  if (contentType) {
-    headers["Content-Type"] = contentType;
-  }
-
-  return headers;
 }
