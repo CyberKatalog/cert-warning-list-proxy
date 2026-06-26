@@ -1,29 +1,9 @@
-# Cloudflare Worker - wrangler.toml configuration template
-# 
-# Copy this file to wrangler.toml and customize for your deployment
-# Usage: cp wrangler.toml.dist wrangler.toml
-
 name = "cert-warning-list-proxy"
 main = "src/worker.js"
 compatibility_date = "2025-05-24"
+workers_dev = false
+preview_urls = false
 
-# Routing configuration
-# Uncomment and replace with your actual domain if using custom domain
-# route = "proxy.your-domain.com/domains/*"
-
-# Environment variables (optional)
-# [vars]
-# SOURCE_DOMAIN = "hole.cert.pl"
-# CACHE_TTL = "3600"
-
-# Limits (for free plan)
-# - 100,000 requests per day
-# - 10ms CPU time per request
-# - 128MB memory
-
-# Example wrangler commands:
-# npx wrangler init --from-dash        # Initialize from dashboard
-# npx wrangler dev                     # Local testing
-# npx wrangler deploy                  # Deploy to Cloudflare
-# npx wrangler tail                    # View logs in real-time
-# npx wrangler delete                  # Delete worker
+routes = [
+  { pattern = "cert.cyberkatalog.pl", custom_domain = true },
+]

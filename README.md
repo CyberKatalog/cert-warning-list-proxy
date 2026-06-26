@@ -139,7 +139,8 @@ curl https://<worker-name>.<cf-username>.workers.dev/domains/domains.json
 
 ## Security features
 
-- **CORS headers** - enables access from browser-based applications
+- **Origin restriction** - only requests from `cyberkatalog.pl` (and local development origins) are served; everything else gets `403 Forbidden`
+- **Scoped CORS** - `Access-Control-Allow-Origin` is echoed only for the allowed origins, with `Vary: Origin`
 - **Path filtering** - only `/domains/` and `/domains/v2/*` paths are handled
 - **Restricted upstream** - only ever forwards requests to `hole.cert.pl`
 - **Allowed methods** - `GET`, `HEAD`, `OPTIONS` only
@@ -156,17 +157,20 @@ pnpm logs
 ### Test commands
 
 ```bash
-# Basic connectivity
-curl -v https://<worker-name>.<cf-username>.workers.dev/domains/v2/domains.json
+# Basic connectivity (from an allowed origin)
+curl -v -H "Origin: https://cyberkatalog.pl" https://cert.cyberkatalog.pl/domains/v2/domains.json
 
 # CORS preflight
-curl -H "Origin: https://example.com" \
+curl -H "Origin: https://cyberkatalog.pl" \
      -H "Access-Control-Request-Method: GET" \
      -X OPTIONS \
-     https://<worker-name>.<cf-username>.workers.dev/domains/v2/domains.json
+     https://cert.cyberkatalog.pl/domains/v2/domains.json
+
+# Foreign origin - should return 403
+curl -H "Origin: https://example.com" https://cert.cyberkatalog.pl/domains/v2/domains.json
 
 # Invalid path - should return 404
-curl https://<worker-name>.<cf-username>.workers.dev/invalid-path
+curl -H "Origin: https://cyberkatalog.pl" https://cert.cyberkatalog.pl/invalid-path
 ```
 
 ### Common errors
@@ -175,6 +179,7 @@ curl https://<worker-name>.<cf-username>.workers.dev/invalid-path
 | --------------------------- | --------------------------------------------------------------- |
 | `404 Not Found`             | Path does not start with `/domains/` or `/domains/v2/`          |
 | `500 Internal Server Error` | Inspect with `pnpm logs`                                        |
+| `403 Forbidden`             | Request origin is not `cyberkatalog.pl`; the proxy is not public |
 | CORS error in browser       | Ensure you are using the proxy URL, not `hole.cert.pl` directly |
 | Rate limited                | Review limits in the Cloudflare Dashboard                       |
 
