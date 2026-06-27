@@ -67,6 +67,8 @@ ALLOWED_PREFIXES = "/domains,/domains/v2"
 
 These are plain configuration values, not secrets - they are stored in `wrangler.toml` and deployed automatically with `pnpm deploy`. To run a private fork for your own domain, change `ALLOWED_ORIGINS` (and optionally the `routes` custom domain) and redeploy; no source changes are needed.
 
+This worker needs **no secrets** - nothing to set on GitHub (the repo has no GitHub Actions) and no `wrangler secret` on Cloudflare. The `[vars]` above are the only deployment inputs.
+
 > Note: origin filtering relies on the `Origin` / `Referer` headers, which browsers send automatically but non-browser clients can forge. It prevents cross-site browser usage and casual hotlinking - it is not an authentication mechanism. For real access control, use a secret token, Cloudflare Access, or mTLS.
 
 ### Custom domain (optional)
